@@ -1,37 +1,62 @@
-import socket
 import sys
+import socket
 
 def main():
-  if len(sys.argv) != 3:
-    print("Usage: python client.py <server_ip> <server_port>")
-    sys.exit(1)
+    if len(sys.argv) != 3:
+        print("Usage: python client.py <server_ip> <server_port>")
+        sys.exit(1)
 
-host = sys.argv[1]
-port = int(sys.argv[2])
-serv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    host = sys.argv[1]
+    port = int(sys.argv[2])
+    serv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-serv_sock.connect((host, port))
-print("Connected to server.")
+    connection_status = serv_sock.connect_ex((host, port))
+    if connection_status != 0:
+        print("Unable to connect to the server")
+        sys.exit(1)
+    else:
+        print("Connected to the server")
 
-while True:
-  print("\Available commands:")
-  print("JOIN <username> - Join server with username")
-  print("LIST - Get list of registered clients")
-  print("MESG <username> <mesg> - Send a message to a specific user")
-  print("BCST <message> - Broadcast a message to all registered clients")
-  print("QUIT - Leave the server")
+    joined = False
+    username = ""
 
-command = input("Enter command: ").strip()
-serv_sock.send(command.encode('ascii'))
+    while True:
+        if not joined:
+            command = input("Enter JOIN followed by your username: ")
+            if command.startswith("JOIN"):
+                username = command.split()[1]
+                serv_sock.send(command.encode('ascii'))
+                response = serv_sock.recv(1024).decode('ascii')
+                print(response)
+                if "joined" in response:
+                    joined = True
+            else:
+                print("You must join first with the command: JOIN <username>")
+        else:
+            command = input(f"{username}: ")
+            serv_sock.send(command.encode('ascii'))
 
-data = serv_sock.recv(1024)
-print('Received from server: ', data.decode('ascii'))
+            if command.startswith("MESG"):
+                recipient = command.split()[1]
+                message = ' '.join(command.split()[2:])
+                print(f"Sending message to {recipient}: {message}")
 
-if command.upper().startswith("QUIT"):
-  print("Disconnected from server.")
-  break
+            elif command.startswith("BCST"):
+                message = ' '.join(command.split()[1:])
+                print(f"{username} is sending a broadcast")
+                print(f"{username}: {message}")
 
-serv_sock.close()
+            elif command == "LIST":
+                print("Requesting list of users...")
+
+            elif command == "QUIT":
+                print(f"{username} is quitting the chat server")
+                joined = False
+                serv_sock.close()
+                break
+
+            response = serv_sock.recv(1024).decode('ascii')
+            print(response)
 
 if __name__ == '__main__':
-  main()
+    main()
