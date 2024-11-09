@@ -23,10 +23,15 @@ def handle_cli_messages(cli_socket, users):
             if message_parts[0] == "LIST":
                 if client_username != "": # check if user is registered
                     user_list = ""
+                    first = False
                     for user in users:
-                        user_list += user[0] + ", "
+                        if first:
+                            user_list += user[0]
+                            first = False
+                        else:
+                            user_list += ", " + user[0]
 
-                    cli_socket.send(user_list)
+                    cli_socket.send(user_list.encode("ascii"))
 
             elif message_parts[0] == "QUIT":
                 # leave loop and close socket
@@ -34,7 +39,7 @@ def handle_cli_messages(cli_socket, users):
 
             else:
                 # Unrecognized Messages
-                cli_socket.send("Unknown Message")
+                cli_socket.send("Unknown Message".encode("ascii"))
 
         elif len(message_parts) == 2:
             # will be JOIN or BCST command
@@ -42,16 +47,16 @@ def handle_cli_messages(cli_socket, users):
             if message_parts[0] == "JOIN":
                 # check if user list is full
                 if len(users) >= 10:
-                    cli_socket.send("Too Many Users")
+                    cli_socket.send("Too Many Users".encode("ascii"))
 
                 # check if user already joined
                 if (message_parts[1], cli_socket) in users:
-                    cli_socket.send("Already Joined")
+                    cli_socket.send("Already Joined".encode("ascii"))
 
                 # add user to users
                 else:
                     # send user spacial join message
-                    cli_socket.send(message_parts[1] + " joined!Connected to server!") # message_parts[1] will be the username
+                    cli_socket.send((message_parts[1] + " joined!Connected to server!").encode('ascii')) # message_parts[1] will be the username
                     send_to_all(users, message_parts[1] + " joined!") # message_parts[1] will be the username
                     # add user to users
                     users.append((message_parts[1], cli_socket))
@@ -60,13 +65,13 @@ def handle_cli_messages(cli_socket, users):
             elif message_parts[0] == "BCST":
                 if client_username != "": # check if user is registered
                     # message for sender
-                    cli_socket.send(client_username + " is sending a broadcast")
+                    cli_socket.send((client_username + " is sending a broadcast").encode("ascii"))
                     # message to all users
                     send_to_all(users, client_username + ": " + message_parts[1]) # message_parts[1] will be the message
 
             else:
                 # Unrecognized Messages
-                cli_socket.send("Unknown Message")
+                cli_socket.send("Unknown Message".encode("ascii"))
 
 
         elif len(message_parts) > 3: # MESG username [message]
@@ -82,21 +87,21 @@ def handle_cli_messages(cli_socket, users):
                 for user in users:
                     if user[0] == message_parts[1]:
                         # send message to "target user" from "user list" using "target user's" socket
-                        user[1].send(client_username + ": " + string.strip())
+                        user[1].send((client_username + ": " + string.strip()).encode("ascii"))
 
             else:
                 # Unrecognized Messages
-                cli_socket.send("Unknown Message")
+                cli_socket.send("Unknown Message".encode("ascii"))
 
         else:
             # Unrecognized Messages
-            cli_socket.send("Unknown Message")
+            cli_socket.send("Unknown Message".encode("ascii"))
 
     cli_socket.close()
 
 def send_to_all(users, message):
     for user in users:
-        user[1].send(message)
+        user[1].send(message.encode("ascii"))
 
 
 def parse_command(input, inputs):
