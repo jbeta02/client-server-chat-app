@@ -33,13 +33,13 @@ def main():
             else:
                 print("You must join first with the command: JOIN <username>")
         else:
-            command = input(f"{username}: ")
+            command = input("")
             serv_sock.send(command.encode('ascii'))
 
             if command.startswith("MESG"):
                 recipient = command.split()[1]
                 message = ' '.join(command.split()[2:])
-                print(f"Sending message to {recipient}: {message}")
+                print(f"MESG {recipient}: {message}")
 
             elif command.startswith("BCST"):
                 message = ' '.join(command.split()[1:])
@@ -47,7 +47,7 @@ def main():
                 print(f"{username}: {message}")
 
             elif command == "LIST":
-                print("Requesting list of users...")
+                print("LIST")
 
             elif command == "QUIT":
                 print(f"{username} is quitting the chat server")
