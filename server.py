@@ -35,6 +35,7 @@ def handle_cli_messages(cli_socket, users):
 
             elif message_parts[0] == "QUIT":
                 # leave loop and close socket
+                #TODO remove user from users list
                 break
 
             else:
