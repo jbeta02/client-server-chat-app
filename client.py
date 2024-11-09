@@ -39,7 +39,6 @@ def main():
             if command.startswith("MESG"):
                 recipient = command.split()[1]
                 message = ' '.join(command.split()[2:])
-                print(f"MESG {recipient}: {message}")
 
             elif command.startswith("BCST"):
                 message = ' '.join(command.split()[1:])
@@ -54,9 +53,12 @@ def main():
                 joined = False
                 serv_sock.close()
                 break
-
+                
             response = serv_sock.recv(1024).decode('ascii')
-            print(response)
+
+            if not command.startswith(("BCST", "QUIT")):
+                print(response)
+
 
 if __name__ == '__main__':
     main()
