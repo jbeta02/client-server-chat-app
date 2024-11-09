@@ -23,7 +23,7 @@ def handle_cli_messages(cli_socket, users):
             if message_parts[0] == "LIST":
                 if client_username != "": # check if user is registered
                     user_list = ""
-                    first = False
+                    first = True
                     for user in users:
                         if first:
                             user_list += user[0]
@@ -154,11 +154,12 @@ def run_server(port):
 
         # setup thread
         thread = threading.Thread(target=handle_cli_messages, args=(cli_socket, users,))
-
         # start thread
+        thread.daemon = True
         thread.start()
 
-    #server_socket.close()
+
+    server_socket.close()
 
 
 def main():
