@@ -52,6 +52,7 @@ def main():
                 print(f"{username} is quitting the chat server")
                 joined = False
                 serv_sock.close()
+                sys.exit(0)
                 break
                 
             response = serv_sock.recv(1024).decode('ascii')
