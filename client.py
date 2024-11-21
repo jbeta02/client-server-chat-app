@@ -46,7 +46,9 @@ def main():
                 print(f"{username}: {message}")
 
             elif command == "LIST":
+                response = serv_sock.recv(1024).decode('ascii')
                 print("LIST")
+                continue
 
             elif command == "QUIT":
                 print(f"{username} is quitting the chat server")
