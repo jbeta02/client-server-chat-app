@@ -69,8 +69,9 @@ def main():
                 serv_sock.close()
                 break
 
+    #Ensures user exits the chatroom
     sys.exit(0)
 
-
+#Run the script
 if __name__ == '__main__':
     main()
