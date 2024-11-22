@@ -1,3 +1,6 @@
+#Jesus Betancourt, Section 1, 11/22/2024
+#server.py sets up a chat server and allows a user to broadcast a message to other registered users, send a private
+#message to a registered user, or send a list request to see all registered users in the server
 
 import socket
 import sys
