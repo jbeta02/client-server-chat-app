@@ -32,10 +32,13 @@ def handle_cli_messages(cli_socket, users):
                             user_list += ", " + user[0]
 
                     cli_socket.send(user_list.encode("ascii"))
+                else:
+                    cli_socket.send("not registered".encode("ascii"))
 
             elif message_parts[0] == "QUIT":
                 # leave loop and close socket
                 users.remove((client_username, cli_socket))
+                send_to_all(users, client_username + " Left" )
                 break
 
             else:
@@ -62,11 +65,14 @@ def handle_cli_messages(cli_socket, users):
                     # add user to users
                     users.append((message_parts[1], cli_socket))
                     client_username = message_parts[1]
+                    ip, port = cli_socket.getsockname()
+                    print(f"Connected with ('{ip}', {port})")
+                    print(client_username + " Joined the Chatroom")
 
             elif message_parts[0] == "BCST":
                 if client_username != "": # check if user is registered
                     # message for sender
-                    cli_socket.send((client_username + " is sending a broadcast").encode("ascii"))
+                    cli_socket.send((client_username + " is sending a broadcast\n").encode("ascii"))
                     # message to all users
                     send_to_all(users, client_username + ": " + message_parts[1]) # message_parts[1] will be the message
 
@@ -75,7 +81,7 @@ def handle_cli_messages(cli_socket, users):
                 cli_socket.send("Unknown Message".encode("ascii"))
 
 
-        elif len(message_parts) > 3: # MESG username [message]
+        elif len(message_parts) >= 3: # MESG username [message]
             # will be MESG
 
             if message_parts[0] == "MESG":
@@ -172,6 +178,7 @@ def main():
     port = int(sys.argv[1])
 
     # start and run server
+    print("The Chat Server Started")
     run_server(port)
 
 # Run your script
