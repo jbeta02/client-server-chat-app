@@ -1,5 +1,16 @@
 import sys
 import socket
+import threading
+
+
+# use thread to listen to server to allow the usage of input() while the server response is printed
+def listen_to_server(sock):
+    while True:
+        response = sock.recv(1024).decode('ascii')
+        if not response:
+            print("Server closed the connection.")
+            break
+        print(response)
 
 def main():
     if len(sys.argv) != 3:
@@ -20,6 +31,11 @@ def main():
     joined = False
     username = ""
 
+    # start thread and listen for server responses
+    listener_thread = threading.Thread(target=listen_to_server, args=(serv_sock, ))
+    listener_thread.daemon = True
+    listener_thread.start()
+
     while True:
         if not joined:
             command = input("Enter JOIN followed by your username: ")
@@ -36,31 +52,12 @@ def main():
             command = input("")
             serv_sock.send(command.encode('ascii'))
 
-            if command.startswith("MESG"):
-                recipient = command.split()[1]
-                message = ' '.join(command.split()[2:])
-
-            elif command.startswith("BCST"):
-                message = ' '.join(command.split()[1:])
-                print(f"{username} is sending a broadcast")
-                print(f"{username}: {message}")
-
-            elif command == "LIST":
-                response = serv_sock.recv(1024).decode('ascii')
-                print("LIST")
-                continue
-
-            elif command == "QUIT":
+            if command == "QUIT":
                 print(f"{username} is quitting the chat server")
-                joined = False
                 serv_sock.close()
-                sys.exit(0)
                 break
-                
-            response = serv_sock.recv(1024).decode('ascii')
 
-            if not command.startswith(("BCST", "QUIT")):
-                print(response)
+    sys.exit(0)
 
 
 if __name__ == '__main__':
